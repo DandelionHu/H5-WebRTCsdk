@@ -1,0 +1,722 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>anychat_websocket</title>
+    <link href="public/css/style.css" rel="stylesheet">
+    <style>
+        /* video{
+			width: 100%;
+		} */
+
+        /* video{
+			transform: rotateY(180deg);
+		} */
+    </style>
+</head>
+
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-sm-6">
+                <h3 class="text-info">视频域</h3>
+                <div id="pp"></div>
+                <br/>
+                <div id="other_1">
+
+                </div>
+                <!-- <div id="cc"></div>
+                <br/>
+                <div id="tow"></div>
+                <br/>
+                <div id="three"></div>
+                <br/>
+                <div id="four"></div>
+                <br/> -->
+                <div id="screen-unique-id"></div>
+
+
+                <img id="pictu">
+                <!-- <canvas id="photograph"></canvas> -->
+                <br>
+                <input class="input-sm" type="text" id="ip" placeholder="ip">
+                <input class="input-sm" type="text" id="port" placeholder="port">
+                <button class="btn btn-default" onclick="connect()">连接</button>
+                <br/>
+                <br/>
+                <input class="input-sm" type="text" id="username" placeholder="用户名">
+                <input class="input-sm" type="text" id="appid" placeholder="应用ID">
+                <button class="btn btn-default" onclick="login()">登录</button>
+                <br/>
+                <br/> 码率
+                <input class="input-sm" style="width: 80px" type="text" id="code_rate" placeholder="码率bps" value="200">bps
+                <br/>
+                <br/> 分辨率
+                <select class="input-sm" id="resolution_ratio" style="width: 150px">
+					<option value="0">320*240</option>
+					<option value="1">640*480</option>
+                </select>
+                <br/>
+                <br/> 房间号
+                <input class="input-sm" style="width: 80px" type="text" id="roomid" placeholder="房间号">
+
+                <button class="btn btn-default" onclick="enterroom()">进房间</button>
+                <br/>
+                <br/>
+
+                <!-- <button class="btn btn-default" onclick="getroomList()">获取房间人数</button></br><br/> -->
+                <button class="btn btn-default" onclick="take_a_picture()">拍照</button>
+                <button class="btn btn-default" id="share-screen">屏幕共享</button>
+                <br/>
+                <br/>
+                <select class="input-sm" id="camera" style="width: 200px"></select>
+                <br/>
+                <br/>
+                <select class="input-sm" id="audio" style="width: 200px"></select>
+                <br/>
+                <br/>
+
+                <!-- <button class="btn btn-default" onclick="opencamera(1)">打开自己摄像头</button>
+				<button class="btn btn-default" onclick="opencamera(0)">关闭自己摄像头</button></br><br/> -->
+
+                <input class="input-sm" style="width: 80px" type="text" id="userid" placeholder="对方uid">
+                <!-- <button class="btn btn-default" onclick="opencamera_o(1)">打开对方摄像头</button> -->
+                <!-- <button class="btn btn-default" onclick="opencamera_o(0)">关闭对方摄像头</button><br/><br/> -->-->
+                <input class="input-sm" type="text" id="sendtext" placeholder="文本信息">
+                <button class="btn btn-default" onclick="sendtext()">发送</button>
+                <br/>
+                <br/>
+                <button class="btn btn-default" onclick="leaveroom()">离开房间</button>
+                <br/>
+                <br/>
+                <button class="btn btn-default" onclick="layout()">注销</button>
+                <br/>
+                <br/>
+                <button class="btn btn-default" onclick="play_a()" id="re">开始录像</button>
+                <button class="btn btn-default" onclick="exlogtxt()">导出日志</button>
+
+                <br/>
+                <br/>
+                <!-- <p style="margin-top: 5px" class="text-info">营业厅</p>
+				<div style="margin-top: 5px">
+					营业厅：<select class="input-sm" id="area" style="width: 150px"></select>
+					<button class="btn btn-default" onclick="enterArea(1)">进入营业厅</button>
+					<button class="btn btn-default" onclick="enterArea(0)">退出营业厅</button>
+				</div>
+				<p style="margin-top: 5px" class="text-info">队列</p>
+				<div style="margin-top: 5px">
+					队列：<select class="input-sm" id="queue" style="width: 150px"></select>
+					<button class="btn btn-default" onclick="enterQueue(1)">进入队列</button>
+					<button class="btn btn-default" onclick="enterQueue(0)">退出队列</button>
+				</div> -->
+
+                <!--<p style="margin-top: 5px" class="text-info">呼叫</p>-->
+                <!--<div style="margin-top: 5px">-->
+                <!--<button class="btn btn-default" onclick="callOther()">开始呼叫</button>-->
+                <!--</div>-->
+            </div>
+
+
+            <div class="col-sm-6">
+                <h3 class="text-info">日志：</h3>
+                <div id="log"></div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="modal fade" tabindex="-1" role="dialog" id="callmodal" data-backdrop="static">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">有人呼叫</h4>
+                </div>
+                <div class="modal-body">
+                    <p>有人呼叫我</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" onclick="cancel_call()">拒绝</button>
+                    <button type="button" class="btn btn-primary" onclick="agree_call()">同意</button>
+                </div>
+            </div>
+            <!-- /.modal-content -->
+        </div>
+        <!-- /.modal-dialog -->
+    </div>
+    <!-- /.modal -->
+
+
+    <div class="modal fade" tabindex="-1" role="dialog" id="queueview" data-backdrop="static">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">排队</h4>
+                </div>
+                <div class="modal-body">
+                    <h4 class="text-center" id="queuename"></h4>
+                    <p class="text-info text-center" id="qlength"></p>
+                    <p class="text-center" id="time"></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" onclick="enterQueue(0)">退出队列</button>
+                </div>
+            </div>
+            <!-- /.modal-content -->
+        </div>
+        <!-- /.modal-dialog -->
+    </div>
+    <!-- /.modal -->
+
+    <div class="modal fade" tabindex="-1" role="dialog" id="log_id">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <h4 class="modal-title">长按保存图片</h4>
+                </div>
+                <div class="modal-body">
+                    <img src="" id="img_">
+                </div>
+                <div class="modal-footer">
+                    <!--<button type="button" class="btn btn-primary" onclick="enterQueue(0)">退出队列</button>-->
+                </div>
+            </div>
+            <!-- /.modal-content -->
+        </div>
+        <!-- /.modal-dialog -->
+    </div>
+    <!-- /.modal -->
+
+    <canvas id="myCanvas" width="500px" height="1000px" style="display: none"></canvas>
+
+</body>
+
+<script src="public/jquery-2.2.1.min.js"></script>
+<script src="public/bootstrap.min.js"></script>
+<script src="dist/anychat4html5.js?5"></script>
+<script src="public/anychatevent.js?12"></script>
+<script src="public/anychatsdk.js?12"></script>
+<script src="public/anychatobject.js?12"></script>
+<script src="//cdn.webrtc-experiment.com/screen.js"></script>
+
+
+<script>
+
+    var errorCode=BRAC_InitSDK(1);
+    if(errorCode==GV_ERR_BROWSERNOWEBRTC){
+        alert("不支持webRTC");
+    }
+
+    var user_open_id = 0;
+
+    document.getElementById('username').value = 'chaoB';
+    // document.getElementById('userid').value = localStorage.anychat_userid || '';
+    document.getElementById('roomid').value = localStorage.anychat_roomid || '';
+    document.getElementById('ip').value = localStorage.anychat_ip || 'h5service.anychat.net.cn';
+    document.getElementById('appid').value = localStorage.appid || '';
+
+    document.getElementById('port').value = getPar('port') || localStorage.port || '9940';
+
+    function connect() {
+        var ip = getPar('ip') || document.getElementById('ip').value || '127.0.0.1';
+        localStorage.anychat_ip = ip;
+        var port = getPar('port') || document.getElementById('port').value || '8940';
+        localStorage.port = port;
+        BRAC_Connect(ip, port);
+
+    }
+
+    var photographCanvas = document.getElementById('photograph');
+
+
+
+    //拍照
+    function take_a_picture() {
+        BRAC_SnapShot(-1, 0, 0);
+    }
+
+
+    //demo 录像方法
+    var record_status = 1;
+
+    function play_a() {
+        var string = {
+            "recordlayout": 1,
+            "streamlist": [
+                {
+                    "userid": -1,
+                    "streamindex": 0,
+                    "recordindex": 0
+                }
+            ]
+        };
+
+        var rec_tag = BRAC_RECORD_FLAGS_SERVER + BRAC_RECORD_FLAGS_VIDEO + BRAC_RECORD_FLAGS_AUDIO + BRAC_RECORD_FLAGS_MIXAUDIO + BRAC_RECORD_FLAGS_MIXVIDEO + BRAC_RECORD_FLAGS_STEREO + BRAC_RECORD_FLAGS_LOCALCB + BRAC_RECORD_FLAGS_ABREAST;
+        BRAC_StreamRecordCtrlEx(-1, record_status, rec_tag, 0, JSON.stringify(string));
+        var errorcode = 0
+        if (errorcode == 0) {
+            if (record_status == 1) {
+                $('#re').text('结束录像');
+                record_status = 0;
+
+            } else {
+                record_status = 1;
+                $('#re').text('开始录像');
+            }
+        }
+    }
+
+
+    function login() {
+        var username = document.getElementById('username').value || 'chaoB';
+        var appid = document.getElementById('appid').value || '';
+        // 
+
+        username = username + Math.random()
+        BRAC_LoginEx(username, -1, username, appid, 0, '', '');
+        // BRAC_SetSDKOption(BRAC_SO_CLOUD_APPGUID, appid);
+        localStorage.appid = appid;
+        // BRAC_Login(username, '123', '');
+    }
+
+
+    function enterroom() {
+        //进房间
+        // log('执行进入房间');
+        //		BRAC_GetSDKOptionString(BRAC_SO_CLOUD_APPGUID);
+        BRAC_GetSDKOptionString(BRAC_SO_CORESDK_BUILDTIME);
+        var roomid = document.getElementById('roomid').value || '2018';
+        localStorage.anychat_roomid = roomid;
+        BRAC_EnterRoom(roomid);
+        console.log(BRAC_EnumDevices(BRAC_DEVICE_AUDIOCAPTURE));
+        console.log(BRAC_EnumDevices(BRAC_DEVICE_AUDIOCAPTURE));
+    }
+
+
+    //发送文本信息
+    function sendtext() {
+        var text = document.getElementById('sendtext').value;
+        if (text) {
+            var userid = document.getElementById('userid').value;
+            if (!userid) {
+                alert('请输入对方userid');
+                return false;
+            }
+            localStorage.anychat_userid = userid;
+            BRAC_SendTextMessage(userid, '', text);
+            log('已发送uid：' + userid + '内容：' + text);
+        } else {
+            log('请输入文本');
+        }
+    }
+
+
+    function getroomList() {
+        log("房间人数：" + BRAC_GetOnlineUser())
+    }
+
+
+    function leaveroom() {
+        // log('离开房间');
+        user_open_id = 0;
+        BRAC_LeaveRoom();
+    }
+
+    function opencamera_o(isopen) {
+        var userid = document.getElementById('userid').value || '-6228';
+        localStorage.anychat_userid = userid;
+        if (userid) {
+            if (isopen == 1) {
+                // log('打开对方摄像头：' + userid);
+                BRAC_UserSpeakControl(userid, 1);
+                BRAC_UserCameraControlEx(userid, 1, 0, 0, '');
+                BRAC_SetVideoPos(userid, document.getElementById('cc'), 'dd');
+            } else {
+                // log('关闭对方摄像头：' + userid);
+                BRAC_UserCameraControlEx(userid, 0, 0, 0, '');
+            }
+        }
+
+
+    }
+
+
+    function opencamera_user_id(userid, isopen) {
+        var dom = document.getElementById('other_1'), id;
+        if (userid) {
+            if (isopen == 1) {
+                user_open_id++;
+                // log('打开对方摄像头：' + userid);
+                BRAC_UserSpeakControl(userid, 1);
+                BRAC_UserCameraControlEx(userid, 1, 0, 0, '');
+                var Odiv = document.createElement("div");             //创建一个div
+                id = Odiv.id = 'video_box' + userid;
+                dom.appendChild(Odiv);
+                BRAC_SetVideoPos(userid, document.getElementById(id), 'other_video' + userid);
+
+
+            } else {
+                user_open_id--;
+                // log('关闭对方摄像头：' + userid);
+                BRAC_UserCameraControlEx(userid, 0, 0, 0, '');
+            }
+        }
+    }
+
+
+    //控制自己摄像头
+    function opencamera(isopen) {
+
+        var mDevices = '';
+        var resolution_ratio = [];
+        resolution_ratio[0] = {
+            width: 320,
+            height: 240
+        }
+        resolution_ratio[1] = {
+            width: 640,
+            height: 480
+        }
+        var ratio_index = $('#resolution_ratio').val();
+        var code_rate = $('#code_rate').val() || 200;
+        if (isopen == 1) {
+            // log('打开自己摄像头');
+            mDevices = $('#camera').val();
+            BRAC_SetUserStreamInfo(-1, 0, BRAC_SO_LOCALVIDEO_DEVICENAME, mDevices);
+            BRAC_SetUserStreamInfo(-1, 0, BRAC_SO_LOCALVIDEO_BITRATECTRL, code_rate * 1000); //kbps
+            BRAC_SetUserStreamInfo(-1, 0, BRAC_SO_LOCALVIDEO_WIDTHCTRL, resolution_ratio[ratio_index].width);
+            BRAC_SetUserStreamInfo(-1, 0, BRAC_SO_LOCALVIDEO_HEIGHTCTRL, resolution_ratio[ratio_index].height);
+            // BRAC_UserCameraControl(-1, 1);
+            BRAC_UserSpeakControl(-1, 1);
+            BRAC_UserCameraControlEx(-1, 1, 0, 0, '');
+            BRAC_SetVideoPos(-1, document.getElementById('pp'), 'ab');
+        } else {
+            BRAC_UserCameraControlEx(-1, 0, 0, 0, '');
+        }
+
+    }
+
+    $('#camera').change(function () {
+        var mDevices = $(this).val();
+        BRAC_SelectVideoCapture(1, mDevices);
+    })
+
+    $('#code_rate').change(function () {
+        var c = $(this).val();
+        BRAC_SetUserStreamInfo(-1, 0, BRAC_SO_LOCALVIDEO_BITRATECTRL, c - 0); //kbps
+    })
+
+
+
+    setTimeout(function () {
+        //video
+        var mDevices = BRAC_EnumDevices(1);
+        var html = '';
+        for (var i in mDevices) {
+            html += '<option value="' + mDevices[i] + '">' + mDevices[i] + '</option>';
+        }
+        document.getElementById('camera').innerHTML = html;
+
+
+        //audio
+        mDevices = BRAC_EnumDevices(2);
+        html = '';
+        for (var i in mDevices) {
+            html += '<option value="' + mDevices[i] + '">' + mDevices[i] + '</option>';
+        }
+        document.getElementById('audio').innerHTML = html;
+        console.log(mDevices);
+    }, 1000);
+
+
+
+    //注销
+    function layout() {
+        user_open_id = 0;
+        BRAC_Logout();
+    }
+
+
+
+
+    function getPar(par) {
+        //获取当前URL
+        var local_url = document.location.href;
+        //获取要取得的get参数位置
+        var get = local_url.indexOf(par + "=");
+        if (get == -1) {
+            return false;
+        }
+        //截取字符串
+        var get_par = local_url.slice(par.length + get + 1);
+        //判断截取后的字符串是否还有其他get参数
+        var nextPar = get_par.indexOf("&");
+        if (nextPar != -1) {
+            get_par = get_par.slice(0, nextPar);
+        }
+        return get_par;
+    }
+
+
+
+
+
+
+    //初始化本地对象信息
+    function InitClientObjectInfo(mSelfUserId, dwAgentFlags, dwPriority) {
+        log('同步');
+        //初始化服务区域Id数组
+        areaArrayIdx = 0;
+        areaIdArray = [];
+        //业务对象身份初始化
+        BRAC_SetSDKOption(BRAC_SO_OBJECT_INITFLAGS, dwAgentFlags);
+        //客户端用户对象优先级
+        BRAC_ObjectSetValue(ANYCHAT_OBJECT_TYPE_CLIENTUSER, mSelfUserId, ANYCHAT_OBJECT_INFO_PRIORITY, dwPriority);
+        var dwAttribute = -1;
+        BRAC_ObjectSetValue(ANYCHAT_OBJECT_TYPE_CLIENTUSER, mSelfUserId, ANYCHAT_OBJECT_INFO_ATTRIBUTE, dwAttribute);
+        //向服务器发送数据同步请求指令
+        BRAC_ObjectControl(ANYCHAT_OBJECT_TYPE_AREA, ANYCHAT_INVALID_OBJECT_ID, ANYCHAT_OBJECT_CTRL_SYNCDATA, mSelfUserId, 0, 0, 0, "");
+    }
+
+    /**
+     * 营业厅
+     */
+    //服务区域(营业厅)ID数组
+    var areaIdArray = null;
+    var areaArrayIdx = 0;
+
+    //显示服务区域(营业厅)
+    function showSerivceArea() {
+        // var areaName = "";
+        // var description = "";
+
+        // setTimeout(function () {
+        // 	var html = '';
+        // 	for (var idx in areaIdArray) {
+        // 		areaName = BRAC_ObjectGetStringValue(ANYCHAT_OBJECT_TYPE_AREA, areaIdArray[idx], ANYCHAT_OBJECT_INFO_NAME);
+        // 		description = BRAC_ObjectGetStringValue(ANYCHAT_OBJECT_TYPE_AREA, areaIdArray[idx], ANYCHAT_OBJECT_INFO_DESCRIPTION);
+        // 		html += '<option value="' + areaIdArray[idx] + '">' + areaName + '</option>';
+
+        // 	}
+
+        // 	document.getElementById('area').innerHTML = html;
+        // }, 600);
+
+    }
+
+    function enterArea(is) {
+        var area = document.getElementById('area');
+        var index = area.selectedIndex; //序号，取当前选中选项的序号
+        var val = area.options[index].value;
+
+        if (is) {
+            log('执行进入营业厅：' + val);
+            BRAC_ObjectControl(ANYCHAT_OBJECT_TYPE_AREA, val, ANYCHAT_AREA_CTRL_USERENTER, 0, 0, 0, 0, "");
+        } else {
+            log('退出营业厅');
+            BRAC_ObjectControl(ANYCHAT_OBJECT_TYPE_AREA, val, ANYCHAT_AREA_CTRL_USERLEAVE, 0, 0, 0, 0, "");
+        }
+
+    }
+
+
+    function areaEnter() {
+
+        setTimeout(function () {
+            var queueList = BRAC_ObjectGetIdList(ANYCHAT_OBJECT_TYPE_QUEUE);
+            var html = '';
+            for (var i in queueList) {
+                var queueListId = parseInt(queueList[i]);
+                /**获取队列名称*/
+                var queueName = BRAC_ObjectGetStringValue(ANYCHAT_OBJECT_TYPE_QUEUE, queueListId, ANYCHAT_OBJECT_INFO_NAME);
+                /**获取队列排队人数*/
+                var queueLength = BRAC_ObjectGetIntValue(ANYCHAT_OBJECT_TYPE_QUEUE, queueListId, ANYCHAT_QUEUE_INFO_LENGTH);
+                queueLength = queueLength < 0 ? 0 : queueLength;
+                /**获取队列信息*/
+                var queueInfo = BRAC_ObjectGetStringValue(ANYCHAT_OBJECT_TYPE_QUEUE, queueListId, ANYCHAT_OBJECT_INFO_DESCRIPTION);
+                var attributeValue = BRAC_ObjectGetIntValue(ANYCHAT_OBJECT_TYPE_QUEUE, queueListId, ANYCHAT_OBJECT_INFO_ATTRIBUTE);
+
+                var queueSkillName = "";
+                html += '<option value="' + queueList[i] + '">' + queueName + '</option>';
+                log('队列名称：' + queueName);
+            }
+            document.getElementById('queue').innerHTML = html;
+        }, 600);
+
+    }
+
+    var queueId = 0;
+
+    function enterQueue(is) {
+
+        var area = document.getElementById('queue');
+        var index = area.selectedIndex; //序号，取当前选中选项的序号
+        var val = area.options[index].value;
+        var text = area.options[index].innerText;
+        if (is) {
+            queueId = val;
+            document.getElementById('queuename').innerHTML = text;
+            log('执行进入队列排队：' + val);
+            var beforeUserNum = BRAC_ObjectGetIntValue(ANYCHAT_OBJECT_TYPE_QUEUE, val, ANYCHAT_QUEUE_INFO_BEFOREUSERNUM);
+            beforeUserNum = beforeUserNum < 0 ? 0 : beforeUserNum;
+            beforeUserNum++;
+            log('排在我前面有' + beforeUserNum + '人');
+            BRAC_ObjectControl(ANYCHAT_OBJECT_TYPE_QUEUE, val, ANYCHAT_QUEUE_CTRL_USERENTER, 0, 0, 0, 0, "");
+        } else {
+            log('退出队列');
+            queueId = 0;
+            BRAC_ObjectControl(ANYCHAT_OBJECT_TYPE_QUEUE, val, ANYCHAT_QUEUE_CTRL_USERLEAVE, 0, 0, 0, 0, "");
+        }
+
+    }
+
+    //呼叫
+    function callOther() {
+        BRAC_VideoCallControl(BRAC_VIDEOCALL_EVENT_REQUEST, -46, 0, 0, 0, "");
+    }
+    var mTargetUserId;
+
+    function onVideoCallControlRequest(dwUserId, dwErrorCode, dwFlags, dwParam, szUserStr) {
+        mTargetUserId = dwUserId;
+        $('#callmodal').modal('show');
+    }
+
+
+    //同意呼叫
+    function agree_call() {
+        BRAC_VideoCallControl(BRAC_VIDEOCALL_EVENT_REPLY, mTargetUserId, 0, 0, 0, "");
+        $('#callmodal').modal('hide');
+    }
+
+    //拒绝呼叫
+    function cancel_call() {
+        BRAC_VideoCallControl(BRAC_VIDEOCALL_EVENT_REPLY, mTargetUserId, GV_ERR_SESSION_REFUSE, 0, 0, "");
+        $('#callmodal').modal('hide');
+    }
+
+    //通话开始
+    var isCall = false;
+
+    function onVideoCallControlStart(dwUserId, dwErrorCode, dwFlags, dwParam, szUserStr) {
+        //请求进入指定的房间
+        $('#callmodal').modal('hide');
+        BRAC_EnterRoom(dwParam, "", 0);
+        isCall = true;
+    }
+
+
+    //呼叫打开
+    function is_open_other() {
+        if (isCall) {
+            // log('打开自己摄像头');
+            // var mDevices = BRAC_EnumDevices(BRAC_DEVICE_VIDEOCAPTURE);
+            var mDevices = '';
+            var resolution_ratio = [];
+            resolution_ratio[0] = {
+                width: 320,
+                height: 240
+            }
+            resolution_ratio[1] = {
+                width: 640,
+                height: 480
+            }
+            mDevices = $('#camera').val();
+            var ratio_index = $('#resolution_ratio').val()
+            var code_rate = $('#code_rate').val() || 200;
+            BRAC_SetUserStreamInfo(-1, 0, BRAC_SO_LOCALVIDEO_DEVICENAME, mDevices);
+            BRAC_SetUserStreamInfo(-1, 0, BRAC_SO_LOCALVIDEO_BITRATECTRL, code_rate * 1000); //kbps
+            BRAC_SetUserStreamInfo(-1, 0, BRAC_SO_LOCALVIDEO_WIDTHCTRL, resolution_ratio[ratio_index].width);
+            BRAC_SetUserStreamInfo(-1, 0, BRAC_SO_LOCALVIDEO_HEIGHTCTRL, resolution_ratio[ratio_index].height);
+            BRAC_UserSpeakControl(-1, 1);
+            BRAC_UserCameraControlEx(-1, 1, 0, 0, '');
+            BRAC_SetVideoPos(-1, document.getElementById('pp'), 'ab');
+
+            setTimeout(function () {
+                // log('打开对方摄像头：' + mTargetUserId);
+                BRAC_UserSpeakControl(mTargetUserId, 1);
+                BRAC_UserCameraControlEx(mTargetUserId, 1, 0, 0, '');
+                BRAC_SetVideoPos(mTargetUserId, document.getElementById('cc'), 'dd');
+            }, 1000);
+
+        }
+    }
+
+    //视频通话结束
+    function onVideoCallControlFinish(dwUserId, dwErrorCode, dwFlags, dwParam, szUserStr) {
+        BRAC_LeaveRoom(-1);
+        mTargetUserId = 0;
+    }
+
+
+    //呼叫坐席
+    function callAgent(agentId) {
+        mTargetUserId = agentId;
+        BRAC_VideoCallControl(BRAC_VIDEOCALL_EVENT_REQUEST, agentId, 0, 0, 0, "");
+    }
+    // 13424041669
+    // 18819458342 huang
+    
+    var timer;
+
+    function queuetime(is) {
+        var second = 0;
+        var TimeFormat = function (time) {
+            var m = Math.floor(time / 60);
+            m = m > 9 ? m : (m > 0 ? "0" + m : "00");
+            var s = time % 60;
+            s = s > 9 ? s : (s > 0 ? "0" + s : "00");
+            return m + ":" + s;
+        };
+        if (is) {
+            clearInterval(timer);
+            $('#queueview').modal('hide');
+            document.getElementById('time').innerHTML = '';
+        } else {
+            $('#queueview').modal('show');
+            clearInterval(timer);
+            timer = setInterval(function () {
+                second++;
+                var time = TimeFormat(second);
+                var beforeUserNum = BRAC_ObjectGetIntValue(ANYCHAT_OBJECT_TYPE_QUEUE, queueId, ANYCHAT_QUEUE_INFO_BEFOREUSERNUM);
+                beforeUserNum = beforeUserNum < 0 ? 0 : beforeUserNum;
+                beforeUserNum++;
+                document.getElementById('qlength').innerHTML = '我前面有' + beforeUserNum + '人在排队';
+                document.getElementById('time').innerHTML = '正在排队' + time;
+            }, 1000);
+
+        }
+
+    }
+
+    //导出日志
+    function exlogtxt() {
+        function is_weixn() {
+            var ua = navigator.userAgent.toLowerCase();
+            if (ua.match(/MicroMessenger/i) == "micromessenger") {
+                return true;
+            } else {
+                return false;
+            }
+        }
+        if (is_weixn()) {
+            var url = log_obj.doExplore(true);
+            $('#img_').attr('src', url);
+            $('#log_id').modal('show');
+
+        } else {
+            log_obj.doExplore(false);
+        }
+
+    }
+
+    document.getElementById('share-screen').onclick = function() {
+        BRAC_shareScreen("screen-unique-id")
+    };
+
+
+</script>
+
+
+</html>

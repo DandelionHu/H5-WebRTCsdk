@@ -1,0 +1,12 @@
+{
+    "compilerOptions":{
+        "module": "amd",//或system
+        "sourceMap":true
+    },
+    "include": [
+        "./app/js/*.ts"
+    ],
+    "exclude": [//不包括的文件
+        "node_module"
+    ]
+}
